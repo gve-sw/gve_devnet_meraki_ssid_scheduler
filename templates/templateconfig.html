@@ -1,0 +1,53 @@
+{% extends "masterPage.html" %}
+
+{% block content %}
+<div class="row">
+    <div style="margin: auto;width: 500px;" >
+        <div class="section">
+            <div class="panel panel--loose panel--raised base-margin-bottom">
+                <div style="text-align: center;">
+                    <a style="float: right;"><img id="footer-link-gve-devnet" src="{{ url_for('static', filename='images/fedasil.png')}}"></a>
+                </div>
+                
+                <h5>SSID schedule templates</h5><hr>
+                
+                <div class="section">
+                    <div class="responsive-table" style="padding-left: 20px;padding-right:20px;">
+                            <table class="table table--lined table">
+                                <thead>
+                                    <tr>
+                                        <th>&nbsp;&nbsp;Template name</th>
+                                        <th>&nbsp;&nbsp;Actions</th>
+                                    </tr>
+                                </thead>
+                                <form action="/templates" method="post">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                        </td>
+                                        <td>
+                                            <a class="btn btn--dark" href="/newtemplate">Add new template</a>
+                                        </td>
+                                    </tr>
+                                    {% for template in templates %}
+                                    <tr style="margin-left: 20px;">
+                                        <td>
+                                            {{template.name}}
+                                        </td>
+                                        <td>
+                                            <a class="btn btn--primary" href="/edittemplate?templateid={{template.id}}">Edit</a>
+                                            <a class="btn btn--danger" href="/removetemplate?templateid={{template.id}}">Delete</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>         
+                            </form>
+                        </table>
+                    </div>
+                    
+                </div>      
+            </div>
+        </div>
+    </div>
+</div>
+{%  endblock %}

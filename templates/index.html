@@ -1,0 +1,200 @@
+{% extends "masterPage.html" %}
+
+{% block content %}
+<div class="row">
+    <div style="margin: auto;" width="100%">
+        <div class="section">
+            <div class="panel panel--loose panel--raised base-margin-bottom">
+                <div style="text-align: center;">
+                </div>
+                
+                <h5>Configure SSID schedule</h5><hr>
+                
+                <div class="section">
+                    <div class="responsive-table" style="padding-left: 0px;padding-right: 0px;">
+                            <table class="table table--lined table">
+                                <thead>
+                                    <tr>
+                                        <th>&nbsp;&nbsp;Network name</th>
+                                        <th>&nbsp;&nbsp;SSID name</th>
+                                        <th>Schedule</th>
+                                    </tr>
+                                </thead>
+                                <form action="/" method="post">
+
+                                <tbody>
+                                <tr>
+                                    <!-- Network selection -->
+                                    <td>
+                                        <div class="form-group base-margin-bottom">
+                                            <div class="form-group__text select">
+                                                <select id="network_selection" name="selected_network" required>
+                                                    <option disabled selected hidden value="0">Please choose...</option>
+                                                    {% for network in dropdown_content %}
+                                                    <option value="{{network.id}}" {% if selected_elements.network == network.id %} selected {% endif %}>{{network.name}}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <!-- SSID selection -->
+                                    <td>
+                                        {% if selected_elements.network == '' %}
+                                        <div id="empty_ssid">
+                                            <div class="form-group base-margin-bottom">
+                                                <div class="form-group__text select">
+                                                    <select>
+                                                        <option disabled selected hidden value="0">Please choose...</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        {% for network in dropdown_content %}
+                                        <div id="{{network.id}}" class="ssid_selection" {% if selected_elements.network != network.id %} hidden {% endif %}>
+                                            <div class="form-group base-margin-bottom">
+                                                <div class="form-group__text select">
+                                                    <select name="selected_ssid" id="ssid-{{network.id}}" onchange="selectSSID(this)">
+                                                        <option disabled selected hidden value="0">Please choose...</option>
+                                                        {% for ssid in network.ssids %}
+                                                        <option value="{{ssid.number}}" {% if selected_elements.ssid == ssid.number|string %} selected {% endif %}>{{ssid.name}}</option>                                                      
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </td>
+                                    <!-- Schedule selection -->
+                                    <td>
+                                        {% for template in templates %}
+                                        <a class="btn btn--dark" onclick='loadSchedule("{{template.schedule}}")''>
+                                            Load {{template.name}} template
+                                        </a>
+                                        {% endfor %}
+                                        <div style="height: 30px;"></div>
+                                    {% for network in dropdown_content %}
+                                        {% for ssid in network.ssids %}
+                                            <div class="schedule_select" id="schedule{{network.id}}--{{ssid.number}}" {% if selected_elements.network != network.id or selected_elements.ssid != ssid.number|string %} hidden {% endif %}>
+                                                {% for day in days %}
+                                                {{day}}</br>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[:8] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-AM-' + time|string %}
+                                                    <li id="li{{checkboxid}}" {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}" type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-AM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[:8] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-PM-' + time|string %}
+                                                    <li id="li{{checkboxid}}" {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}" type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-PM-{{time}}"></li>                                                    {% endfor %}
+                                                </ul></br>
+
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[8:16] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-AM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-AM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[8:16] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-PM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-PM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul></br>
+
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[16:24] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-AM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-AM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[16:24] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-PM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-PM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul></br>
+
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[24:32] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-AM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-AM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[24:32] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-PM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-PM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul></br>
+
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[32:40] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-AM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-AM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[32:40] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-PM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-PM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul></br>
+
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[40:48] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-AM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-AM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                    {% for time in times[40:48] %}
+                                                    {% set checkboxid = network.id + '-' + ssid.number|string + '-' + day + '-PM-' + time|string %}
+                                                    <li id="li{{checkboxid}}"  {% if checkboxid in selected %} class="active" {% endif %}><a onclick="checkTime(this)">{{time}}</a><input id="check{{checkboxid}}"  type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.id}}-{{ssid.number}}-{{day}}-PM-{{time}}"></li>
+                                                    {% endfor %}
+                                                </ul></br>
+
+                                                {% endfor %}
+                                            </div>
+                                        {% endfor %}
+                                    {% endfor %}
+                                    </td>
+                                </tr>
+                                
+                                    <!-- {% for network in networks %}
+                                    <tr>
+                                        <td><b>&nbsp;&nbsp;{{network.networkname}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                                        <td>&nbsp;&nbsp;{{network.name}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                                        <td>
+                                            {% for day in days %}
+                                            {{day}}&nbsp;&nbsp;
+                                            <b style="color:var(--cui-theme-primary);">AM:</b>&nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                {% for time in times %}
+                                                {% set checkboxid = network.networkid + '-' + network.number|string + '-' + day + '-AM-' + time|string %}
+                                                <li {% if checkboxid in selected %} class="active" {% endif %}><a href="javascript:;" onclick="checkTime(this)">{{time}}-{{time}}</a><input type="checkbox" {% if checkboxid in selected %} checked {% endif %} hidden name="{{network.networkid}}-{{network.number}}-{{day}}-AM-{{time}}"></li>
+                                                {% endfor %}
+                                            </ul>
+                                            <b>&nbsp;&nbsp;&nbsp;&nbsp;PM:</b>&nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                                {% for time in times %}
+                                                <li><a href="javascript:;" onclick="checkTime(this)">{{time}}-{{time}}</a><input type="checkbox" hidden name="{{network.networkid}}-{{network.number}}-{{day}}-PM-{{time}}"></li>
+                                                {% endfor %}
+                                            </ul></br>
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %} -->
+                                </tbody>
+                                <div class="pull-right" style="margin-right: 30px;margin-bottom: 30px;">
+                                    <input id="settings-submit" onclick="showLoadingText()" onload="showOriginalText('Save')" class="btn btn-primary" type="submit" style="margin-top: 10px;" value="Submit">
+                                </div>            
+                            </form>
+                        </table>
+                    </div>
+                    
+                </div>      
+            </div>
+        </div>
+    </div>
+</div>
+{%  endblock %}

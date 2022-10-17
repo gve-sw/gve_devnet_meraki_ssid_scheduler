@@ -1,0 +1,132 @@
+{% extends "masterPage.html" %}
+
+{% block content %}
+<div class="row">
+    <div style="margin: auto;" width="100%">
+        <div class="section">
+            <div class="panel panel--loose panel--raised base-margin-bottom">
+                <div style="text-align: center;">
+                    <a style="float: right;"><img id="footer-link-gve-devnet" src="{{ url_for('static', filename='images/fedasil.png')}}"></a>
+                </div>
+                
+                <h5>Configure SSID schedule template</h5><hr>
+
+                {% if error %}
+                <div class="alert alert--danger" role="alert">
+                    <div class="alert__icon icon-error-outline"></div>
+                    <div class="alert__message">{{message}}</div>
+                </div>
+                {% endif %}
+                
+                <div class="section">
+                    <form action="/newtemplate" method="post">
+                    <div class="form-group form-group--inline">
+                        <div class="form-group__text">
+                            <input type="text" name="templatename">
+                            <label>Template name: </label>
+                        </div>
+                    </div>
+                    <div class="responsive-table" style="margin-top:30px;">
+                            <table class="table table--lined table">
+                                <thead>
+                                    <tr>
+                                        <th>Schedule</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <!-- Schedule selection -->
+                                    <td>
+                                    <div class="schedule_select">
+                                        {% for day in days %}
+                                        {{day}}</br>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[:8] %}
+                                            {% set checkboxid = day + '-AM-' + time|string %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-AM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[:8] %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-PM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul></br>
+
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[8:16] %}
+                                            {% set checkboxid = day + '-AM-' + time|string %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-AM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[8:16] %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-PM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul></br>
+
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[16:24] %}
+                                            {% set checkboxid = day + '-AM-' + time|string %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-AM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[16:24] %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-PM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul></br>
+
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[24:32] %}
+                                            {% set checkboxid = day + '-AM-' + time|string %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-AM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[24:32] %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-PM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul></br>
+
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[32:40] %}
+                                            {% set checkboxid = day + '-AM-' + time|string %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-AM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[32:40] %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-PM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul></br>
+
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[40:] %}
+                                            {% set checkboxid = day + '-AM-' + time|string %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-AM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<ul class="pagination">
+                                            {% for time in times[40:] %}
+                                            <li><a onclick="checkTime(this)">{{time}}</a><input type="checkbox" hidden name="{{day}}-PM-{{time}}"></li>
+                                            {% endfor %}
+                                        </ul></br>
+
+                                        {% endfor %}
+                                    </div>
+                                    </td>
+                                </tr>
+                                </tbody>
+                                              
+                        </table>
+                    </div>
+                    <div class="pull-right" style="margin-right: 30px;margin-bottom: 30px;">
+                        <input id="settings-submit" onclick="showLoadingText()" onload="showOriginalText('Save')" class="btn btn-primary" type="submit" style="margin-top: 30px;" value="Submit">
+                    </div>  
+                </form>
+                </div>      
+            </div>
+        </div>
+    </div>
+</div>
+{%  endblock %}
