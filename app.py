@@ -83,91 +83,92 @@ def template():
 @app.route('/', methods=['GET', 'POST'])
 def index():
     global dropdown_content, selected_elements, selected_schedule_template, days, times
-    try:
-        settings = getJson('settings.json')
-        if len(settings['apikey']) < 20:
-            redirect('/settings')
-        networks = []
-        selected = []
+    # try:
+    settings = getJson('settings.json')
+    if len(settings['apikey']) < 20:
+        redirect('/settings')
+    networks = []
+    selected = []
 
-        api = DashboardAPI(settings['apikey'])
-        orgs  = api.organizations.getOrganizations()
-        for org in orgs:
-            for n in api.organizations.getOrganizationNetworks(org['id']):
-                entry = {
-                    'name' : n['name'],
-                    'id' : n['id'],
-                    'ssids' : []
-                }
-                try:
-                    for ssid in api.wireless.getNetworkWirelessSsids(n['id']):
-                        networks += [{
-                            'name' : ssid['name'],
-                            'networkid' : n['id'],
-                            'number' : ssid['number'],
-                            'planning' : [],
-                            'networkname' : n['name']
-                        }]
-                        entry['ssids'] += [{
-                            'name' : ssid['name'],
-                            'number' : ssid['number']
-                        }]
-                except Exception as e:
-                    print(e)
-                dropdown_content += [entry]
-            writeJson(f"networks.json", networks)
-            writeJson('dropdown.json', dropdown_content)
-            selected = []
-        else:
-            selected = settings['selected']
-
-        if request.method == 'POST':
-            # Network and SSID input
-            selected_network = request.form.get('selected_network')
-            selected_ssid = request.form.get('selected_ssid')
-            selected_elements = {
-                'network' : selected_network,
-                'ssid' : selected_ssid,
-                'scheduletemplate' : selected_schedule_template
+    api = DashboardAPI(settings['apikey'])
+    orgs  = api.organizations.getOrganizations()
+    for org in orgs:
+        for n in api.organizations.getOrganizationNetworks(org['id']):
+            entry = {
+                'name' : n['name'],
+                'id' : n['id'],
+                'ssids' : []
             }
-
-            selected = []
-            ids = dict(request.form.lists())
-            new_networks=[]
-            networks = getJson(f"networks.json")
-            for n in networks:
-                new_n = n
-                new_n['planning'] = []
-                new_n['selectedids'] = []
-                new_networks += [new_n]
-            for id in ids:
-                vals = id.split('-')
-                if len(vals)>1:
-                    entry = {
-                        'networkid' : vals[0],
-                        'number' : int(vals[1]),
-                        'day' : vals[2],
-                        'start_time' : vals[4]
-                    }
-                    i=0
-                    for n in networks:
-                        if entry['networkid'] == n['networkid'] and entry['number'] == n['number']:
-                            new_networks[i]['planning'] += [entry['start_time']]
-                            new_networks[i]['selectedids'] += [id]
-                        i+=1
-            writeJson(f"networks.json", new_networks)
-            writeJson('settings.json', settings)
-        
-        networks = getJson(f"networks.json")
+            try:
+                for ssid in api.wireless.getNetworkWirelessSsids(n['id']):
+                    networks += [{
+                        'name' : ssid['name'],
+                        'networkid' : n['id'],
+                        'number' : ssid['number'],
+                        'planning' : [],
+                        'networkname' : n['name'],
+                        'selectedids' : []
+                    }]
+                    entry['ssids'] += [{
+                        'name' : ssid['name'],
+                        'number' : ssid['number']
+                    }]
+            except Exception as e:
+                print(e)
+            dropdown_content += [entry]
+        writeJson(f"networks.json", networks)
+        writeJson('dropdown.json', dropdown_content)
         selected = []
-        for n in networks:
-            selected += n['selectedids']
+    else:
+        selected = settings['selected']
 
-        return render_template('index.html', templates=getJson('templates.json'), selected_elements=selected_elements, selected=selected, networks=getJson(f"networks.json")[:5], days=days, times=times, dropdown_content=getJson('dropdown.json'))
-    except Exception as e: 
-        print(e)  
-        #OR the following to show error message 
-        return render_template('index.html', networks = [], selected_elements=selected_elements)
+    if request.method == 'POST':
+        # Network and SSID input
+        selected_network = request.form.get('selected_network')
+        selected_ssid = request.form.get('selected_ssid')
+        selected_elements = {
+            'network' : selected_network,
+            'ssid' : selected_ssid,
+            'scheduletemplate' : selected_schedule_template
+        }
+
+        selected = []
+        ids = dict(request.form.lists())
+        new_networks=[]
+        networks = getJson(f"networks.json")
+        for n in networks:
+            new_n = n
+            new_n['planning'] = []
+            new_n['selectedids'] = []
+            new_networks += [new_n]
+        for id in ids:
+            vals = id.split('-')
+            if len(vals)>1:
+                entry = {
+                    'networkid' : vals[0],
+                    'number' : int(vals[1]),
+                    'day' : vals[2],
+                    'start_time' : vals[4]
+                }
+                i=0
+                for n in networks:
+                    if entry['networkid'] == n['networkid'] and entry['number'] == n['number']:
+                        new_networks[i]['planning'] += [entry['start_time']]
+                        new_networks[i]['selectedids'] += [id]
+                    i+=1
+        writeJson(f"networks.json", new_networks)
+        writeJson('settings.json', settings)
+    
+    networks = getJson(f"networks.json")
+    selected = []
+    for n in networks:
+        selected += n['selectedids']
+
+    return render_template('index.html', templates=getJson('templates.json'), selected_elements=selected_elements, selected=selected, networks=getJson(f"networks.json"), days=days, times=times, dropdown_content=getJson('dropdown.json'))
+    # except Exception as e: 
+    #     print(e)  
+    #     #OR the following to show error message 
+    #     return render_template('index.html', networks = [], selected_elements=selected_elements)
 
 @app.route('/loadtemplate')
 def load_template():
